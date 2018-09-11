@@ -5,6 +5,7 @@
  * MoodleRest is a class to query Moodle REST webservices
  *
  * @package    MoodleRest
+ * @version 1.0.0
  * @author     Lawrence Lagerlof <llagerlof@gmail.com>
  * @copyright  2018 Lawrence Lagerlof
  * @link       http://github.com/llagerlof/MoodleRest
@@ -126,7 +127,7 @@ class MoodleRest
      *
      * @param string $request_return The returned data made by request() method
      */
-    private function setRawReturn($request_return)
+    private function setRawData($request_return)
     {
         $this->request_return = $request_return;
     }
@@ -134,7 +135,7 @@ class MoodleRest
     /**
      * Get the returned data previously made by request() method
      */
-    public function getRawReturn()
+    public function getRawData()
     {
         return $this->request_return;
     }
@@ -144,7 +145,7 @@ class MoodleRest
      *
      * @param string $parsed_return The parsed returned data made by request() method
      */
-    private function setParsedReturn($parsed_return)
+    private function setData($parsed_return)
     {
         $this->parsed_return = $parsed_return;
     }
@@ -152,7 +153,7 @@ class MoodleRest
     /**
      * Get the parsed returned data previously made by request() method
      */
-    public function getParsedReturn()
+    public function getData()
     {
         return $this->parsed_return;
     }
@@ -205,6 +206,7 @@ class MoodleRest
             $this->setHeader('Content-Type: application/xml');
             header('Content-Type: application/xml');
         }
+
         return $this;
     }
 
@@ -221,12 +223,13 @@ class MoodleRest
                     header('Content-Type: application/xml');
                 }
             }
-            echo $this->getParsedReturn();
+            echo $this->getData();
         } else {
-            if (is_array($this->getParsedReturn())) echo '<pre>';
-            print_r($this->getParsedReturn());
-            if (is_array($this->getParsedReturn())) echo '</pre>';
+            if (is_array($this->getData())) echo '<pre>';
+            print_r($this->getData());
+            if (is_array($this->getData())) echo '</pre>';
         }
+
         return $this;
     }
 
@@ -280,29 +283,39 @@ class MoodleRest
 
         $moodle_request = file_get_contents($this->getFullUrl());
 
-        $this->setRawReturn($moodle_request);
+        $this->setRawData($moodle_request);
 
         if ($this->getReturnFormat() == 'array') {
-            $this->setParsedReturn(json_decode($moodle_request, true));
+            $this->setData(json_decode($moodle_request, true));
         } else {
-            $this->setParsedReturn($moodle_request);
+            $this->setData($moodle_request);
         }
+
         return $this;
     }
 }
 
+
+// EXAMPLES:
+/*
+$ip = '127.0.0.1';
+$moodle_folder = 'moodle';
+*/
+
+
 // Example 1: Two requests using the same object, returns array
 /*
 $MoodleRest = new MoodleRest();
-$MoodleRest->setServerAddress('http://127.0.0.1/moodle342/webservice/rest/server.php');
+$MoodleRest->setServerAddress("http://$ip/$moodle_folder/webservice/rest/server.php");
 $MoodleRest->setToken('8f12e614dae30735260a045313caa400');
 $MoodleRest->setReturnFormat('array');
+$result1 = $MoodleRest->request('core_group_get_groups', array('groupids' => array(1,2)))->getData(); // groupids[0]=1&groupids[1]=2
 
-$result1 = $MoodleRest->request('core_group_get_groups', array('groupids' => array(1,2)))->getParsedReturn(); // groupids[0]=1&groupids[1]=2
 echo "<pre>result1:\n".print_r($result1, true)."</pre>";
 
 $params = array('userlist' => array(array('userid' => 5, 'courseid' => 2), array('userid' => 4, 'courseid' => 2))); //userlist[0][userid]=5&userlist[1][userid]=4&userlist[0][courseid]=2&userlist[1][courseid]=2
-$result2 = $MoodleRest->request('core_user_get_course_user_profiles', $params)->getParsedReturn();
+$result2 = $MoodleRest->request('core_user_get_course_user_profiles', $params)->getData();
+
 echo "<pre>result2:\n".print_r($result2, true)."</pre>";
 */
 
@@ -310,21 +323,23 @@ echo "<pre>result2:\n".print_r($result2, true)."</pre>";
 // Example 2: Returning a json object
 /*
 $MoodleRest = new MoodleRest();
-$MoodleRest->setServerAddress('http://127.0.0.1/moodle342/webservice/rest/server.php');
+$MoodleRest->setServerAddress("http://$ip/$moodle_folder/webservice/rest/server.php");
 $MoodleRest->setToken('8f12e614dae30735260a045313caa400');
 $MoodleRest->setReturnFormat('json');
-$json = $MoodleRest->request('core_group_get_groups', array('groupids' => array(1,2)))->getParsedReturn();
+$json = $MoodleRest->request('core_group_get_groups', array('groupids' => array(1,2)))->getData();
 $MoodleRest->outputHeader();
+
 echo $json;
 */
 
 
-// Example 3: Returning a xml object using method chaining
+// Example 3: Returning a xml object using method chaining. It generates the header so the user can manually output the result with just an echo.
+//            The method outputHeader() can be omitted if the user wants manually output the header before calling echo
 /*
 $xml =
-    (new MoodleRest())->setServerAddress('http://127.0.0.1/moodle342/webservice/rest/server.php')->
+    (new MoodleRest())->setServerAddress("http://$ip/$moodle_folder/webservice/rest/server.php")->
     setToken('8f12e614dae30735260a045313caa400')->
-    setReturnFormat('xml')->request('core_group_get_groups', array('groupids' => array(1,2)))->outputHeader()->getParsedReturn();
+    setReturnFormat('xml')->request('core_group_get_groups', array('groupids' => array(1,2)))->outputHeader()->getData();
 
 echo $xml;
 */
@@ -332,7 +347,7 @@ echo $xml;
 
 // Example 4: Direct output a json
 /*
-(new MoodleRest())->setServerAddress('http://127.0.0.1/moodle342/webservice/rest/server.php')->
+(new MoodleRest())->setServerAddress("http://$ip/$moodle_folder/webservice/rest/server.php")->
 setToken('8f12e614dae30735260a045313caa400')->
 setReturnFormat('json')->request('core_group_get_groups', array('groupids' => array(1,2)))->outputHeader()->outputResult();
 */
@@ -340,7 +355,7 @@ setReturnFormat('json')->request('core_group_get_groups', array('groupids' => ar
 
 // Example 5: Direct output an array (outputHeader() can be left out)
 /*
-(new MoodleRest())->setServerAddress('http://127.0.0.1/moodle342/webservice/rest/server.php')->
+(new MoodleRest())->setServerAddress("http://$ip/$moodle_folder/webservice/rest/server.php")->
 setToken('8f12e614dae30735260a045313caa400')->
 setReturnFormat('array')->request('core_group_get_groups', array('groupids' => array(1,2)))->outputResult();
 */
