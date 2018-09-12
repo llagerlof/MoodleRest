@@ -66,4 +66,14 @@ setToken('8f12e614dae30735260a045313caa400')->
 setReturnFormat('json')->request('core_group_get_groups', array('groupids' => array(1,2)))->outputHeader()->outputResult();
 ```
 
+### Example 4
+
+For debugging purposes you can output the result as an array using outputResult(). It will send the array converted to string to the standard output.
+
+```php
+(new MoodleRest())->setServerAddress("http://127.0.0.1/moodle/webservice/rest/server.php")->
+setToken('8f12e614dae30735260a045313caa400')->
+setReturnFormat('array')->request('core_group_get_groups', array('groupids' => array(1,2)))->outputResult();
+```
+
 More examples inside the source!
