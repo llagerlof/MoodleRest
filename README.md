@@ -34,9 +34,29 @@ Call the server. In this example we query 2 pre-existent Moodle groups with IDs 
 $arr = $MoodleRest->request('core_group_get_groups', array('groupids' => array(1,2)))->getData();
 
 print_r($arr);
+
+// Note: You can make more requests using the same object
 ```
 
 ### Example 2
+
+Make a request using chained methods and return the result as an array.
+
+```php
+// This parameters translates in URL as: "userlist[0][userid]=5&userlist[1][userid]=4&userlist[0][courseid]=2&userlist[1][courseid]=2"
+$parameters = array('userlist' => array(array('userid' => 5, 'courseid' => 2), array('userid' => 4, 'courseid' => 2)));
+
+$arr =
+    (new MoodleRest())->setServerAddress("http://127.0.0.1/moodle/webservice/rest/server.php")->
+    setToken('8f12e614dae30735260a045313caa400')->
+    setReturnFormat('array')->request('core_user_get_course_user_profiles', $parameters)->outputHeader()->getData();
+
+echo '<pre>';
+print_r($arr);
+echo '</pre>';
+```
+
+### Example 3
 
 In this example we make a request using chained methods and output the result as pure json.
 
@@ -46,4 +66,4 @@ setToken('8f12e614dae30735260a045313caa400')->
 setReturnFormat('json')->request('core_group_get_groups', array('groupids' => array(1,2)))->outputHeader()->outputResult();
 ```
 
-Other examples inside the source.
+More examples inside the source!
