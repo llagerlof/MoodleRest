@@ -225,7 +225,7 @@ class MoodleRest
             }
             echo $this->getData();
         } else {
-            if (is_array($this->getData())) echo '<pre>';
+            if (is_array($this->getData())) echo "<pre>\n";
             print_r($this->getData());
             if (is_array($this->getData())) echo '</pre>';
         }
@@ -243,27 +243,27 @@ class MoodleRest
     {
         $fatal = 0;
         if (empty($this->getServerAddress())) {
-            trigger_error("Empty server address. Use setServerAddress()", E_USER_WARNING);
+            trigger_error('Empty server address. Use setServerAddress()', E_USER_WARNING);
             $fatal = 1;
         }
         if (empty($this->getToken())) {
-            trigger_error("Empty token. Use setToken()", E_USER_WARNING);
+            trigger_error('Empty token. Use setToken()', E_USER_WARNING);
             $fatal = 1;
         }
         if (empty($this->getReturnFormat())) {
-            trigger_error("Empty return format. Use setReturnFormat()", E_USER_WARNING);
+            trigger_error('Empty return format. Use setReturnFormat()', E_USER_WARNING);
             $fatal = 1;
         }
         if (empty($function)) {
-            trigger_error("Empty function. Fill the first parameter of request()", E_USER_WARNING);
+            trigger_error('Empty function. Fill the first parameter of request()', E_USER_WARNING);
             $fatal = 1;
         }
         if (!is_array($parameters) || empty($parameters)) {
-            trigger_error("The second parameter of request() should be a not empty array", E_USER_WARNING);
+            trigger_error('The second parameter of request() should not be an empty array', E_USER_WARNING);
             $fatal = 1;
         }
         if ($fatal) {
-            trigger_error("Fix above errors and try again", E_USER_ERROR);
+            trigger_error('Fix above errors and try again', E_USER_ERROR);
         }
 
         if ($this->getReturnFormat() == 'array' || $this->getReturnFormat() == 'json') {
@@ -275,7 +275,7 @@ class MoodleRest
         $query_string = http_build_query($parameters);
         $this->setFullUrl(
             $this->getServerAddress() .
-            '?wstoken='.$this->getToken() .
+            '?wstoken=' . $this->getToken() .
             '&moodlewsrestformat=' . $return_format .
             '&wsfunction=' . $function .
             '&' . $query_string
