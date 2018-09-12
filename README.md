@@ -49,7 +49,7 @@ $parameters = array('userlist' => array(array('userid' => 5, 'courseid' => 2), a
 $arr =
     (new MoodleRest())->setServerAddress("http://127.0.0.1/moodle/webservice/rest/server.php")->
     setToken('8f12e614dae30735260a045313caa400')->
-    setReturnFormat('array')->request('core_user_get_course_user_profiles', $parameters)->outputHeader()->getData();
+    setReturnFormat('array')->request('core_user_get_course_user_profiles', $parameters)->getData();
 
 echo '<pre>';
 print_r($arr);
