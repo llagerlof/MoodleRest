@@ -216,7 +216,7 @@ class MoodleRest
     public function outputResult()
     {
         if (($this->getReturnFormat() == 'json') || ($this->getReturnFormat() == 'xml')) {
-            if (empty($this->getHeader())) {
+            if (empty($this->output_header)) {
                 if ($this->getReturnFormat() == 'json') {
                     header('Content-Type: application/json');
                 } elseif ($this->getReturnFormat() == 'xml') {
@@ -242,15 +242,15 @@ class MoodleRest
     public function request($function, $parameters)
     {
         $fatal = 0;
-        if (empty($this->getServerAddress())) {
+        if (empty($this->server_address)) {
             trigger_error('Empty server address. Use setServerAddress()', E_USER_WARNING);
             $fatal = 1;
         }
-        if (empty($this->getToken())) {
+        if (empty($this->token)) {
             trigger_error('Empty token. Use setToken()', E_USER_WARNING);
             $fatal = 1;
         }
-        if (empty($this->getReturnFormat())) {
+        if (empty($this->return_format)) {
             trigger_error('Empty return format. Use setReturnFormat()', E_USER_WARNING);
             $fatal = 1;
         }
