@@ -5,7 +5,7 @@
  * MoodleRest is a class to query Moodle REST webservices
  *
  * @package    MoodleRest
- * @version 1.0.0
+ * @version    1.0.1
  * @author     Lawrence Lagerlof <llagerlof@gmail.com>
  * @copyright  2018 Lawrence Lagerlof
  * @link       http://github.com/llagerlof/MoodleRest
