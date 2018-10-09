@@ -57,18 +57,18 @@ print_r($arr);
 
 ### Example 3
 
-Make a request using chained methods and return the result as an array.
+Make a request using chained methods and return the result as json.
 
 ```php
 // This parameters translates in URL as: "userlist[0][userid]=5&userlist[1][userid]=4&userlist[0][courseid]=2&userlist[1][courseid]=2"
 $parameters = array('userlist' => array(array('userid' => 5, 'courseid' => 2), array('userid' => 4, 'courseid' => 2)));
 
-$arr =
+$json =
     (new MoodleRest())->setServerAddress("http://127.0.0.1/moodle/webservice/rest/server.php")->
     setToken('8f12e614dae30735260a045313caa400')->
-    setReturnFormat(MoodleRest::RETURN_ARRAY)->request('core_user_get_course_user_profiles', $parameters);
+    setReturnFormat(MoodleRest::RETURN_JSON)->request('core_user_get_course_user_profiles', $parameters);
 
-print_r($arr);
+echo $json;
 ```
 
 More examples in [wiki](https://github.com/llagerlof/MoodleRest/wiki/MoodleRest-wiki).
