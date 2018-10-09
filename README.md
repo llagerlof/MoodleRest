@@ -71,4 +71,4 @@ $json =
 echo $json;
 ```
 
-More examples in [wiki](https://github.com/llagerlof/MoodleRest/wiki/MoodleRest-wiki).
+More examples in [wiki](https://github.com/llagerlof/MoodleRest/wiki/MoodleRest-examples).
