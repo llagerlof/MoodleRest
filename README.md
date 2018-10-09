@@ -14,7 +14,23 @@ require_once('MoodleRest.php');
 
 ### Example 1
 
-Instantiate the MoodleRest object;
+Set the server and token in constructor and make a request to create a group on Moodle.
+
+```php
+$MoodleRest = new MoodleRest($config['moodle']['rest_url'], $config['moodle']['token']);
+
+$new_group = array('groups' => array(array('courseid' => 2, 'name' => 'Group name', 'description' => 'Group description')));
+
+$return = $MoodleRest->request('core_group_create_groups', $new_group);
+
+// If you want the requested URL
+echo $MoodleRest->getUrl();
+```
+
+
+### Example 2
+
+Instantiate the MoodleRest object.
 
 ```php
 $MoodleRest = new MoodleRest();
@@ -25,20 +41,21 @@ Set the Moodle server, token and the request return format (array, json or xml)
 ```php
 $MoodleRest->setServerAddress("http://127.0.0.1/moodle/webservice/rest/server.php");
 $MoodleRest->setToken('8f12e614dae30735260a045313caa400');
-$MoodleRest->setReturnFormat('array');
+$MoodleRest->setReturnFormat(MoodleRest::RETURN_ARRAY); // Array is default. You can use RETURN_JSON or RETURN_XML too.
 ```
 
 Call the server. In this example we query 2 pre-existent Moodle groups with IDs 1 and 2.
 
 ```php
-$arr = $MoodleRest->request('core_group_get_groups', array('groupids' => array(1,2)))->getData();
+$arr = $MoodleRest->request('core_group_get_groups', array('groupids' => array(1,2)));
 
 print_r($arr);
 
 // Note: You can make more requests using the same object
 ```
 
-### Example 2
+
+### Example 3
 
 Make a request using chained methods and return the result as an array.
 
@@ -49,31 +66,9 @@ $parameters = array('userlist' => array(array('userid' => 5, 'courseid' => 2), a
 $arr =
     (new MoodleRest())->setServerAddress("http://127.0.0.1/moodle/webservice/rest/server.php")->
     setToken('8f12e614dae30735260a045313caa400')->
-    setReturnFormat('array')->request('core_user_get_course_user_profiles', $parameters)->getData();
+    setReturnFormat(MoodleRest::RETURN_ARRAY)->request('core_user_get_course_user_profiles', $parameters);
 
-echo '<pre>';
 print_r($arr);
-echo '</pre>';
 ```
 
-### Example 3
-
-In this example we make a request using chained methods and output the result as pure json.
-
-```php
-(new MoodleRest())->setServerAddress("http://127.0.0.1/moodle/webservice/rest/server.php")->
-setToken('8f12e614dae30735260a045313caa400')->
-setReturnFormat('json')->request('core_group_get_groups', array('groupids' => array(1,2)))->outputHeader()->outputResult();
-```
-
-### Example 4
-
-For debugging purposes you can output the result as an array using outputResult(). It will send the array converted to string to the standard output.
-
-```php
-(new MoodleRest())->setServerAddress("http://127.0.0.1/moodle/webservice/rest/server.php")->
-setToken('8f12e614dae30735260a045313caa400')->
-setReturnFormat('array')->request('core_group_get_groups', array('groupids' => array(1,2)))->outputResult();
-```
-
-More examples inside the source!
+More examples in [wiki](https://github.com/llagerlof/MoodleRest/wiki/MoodleRest-wiki).
