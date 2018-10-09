@@ -17,7 +17,7 @@ require_once('MoodleRest.php');
 Set the server and token in constructor and make a request to create a group on Moodle.
 
 ```php
-$MoodleRest = new MoodleRest($config['moodle']['rest_url'], $config['moodle']['token']);
+$MoodleRest = new MoodleRest('http://127.0.0.1/moodle/webservice/rest/server.php', '8f12e614dae30735260a045313caa400');
 
 $new_group = array('groups' => array(array('courseid' => 2, 'name' => 'Group name', 'description' => 'Group description')));
 
