@@ -5,7 +5,7 @@
  * MoodleRest is a class to query Moodle REST webservices
  *
  * @package    MoodleRest
- * @version    2.0.0
+ * @version    2.2.0
  * @author     Lawrence Lagerlof <llagerlof@gmail.com>
  * @copyright  2018 Lawrence Lagerlof
  * @link       http://github.com/llagerlof/MoodleRest
@@ -30,6 +30,18 @@ class MoodleRest
      * @access public
      */
     const RETURN_ARRAY = 'array';
+
+    /**
+     * The constant that defines the request method using GET
+     * @access public
+     */
+    const METHOD_GET = 'get';
+
+    /**
+     * The constant that defines the request method using POST
+     * @access public
+     */
+    const METHOD_POST = 'post';
 
     /**
      * The full server address to Moodle REST webservices.
@@ -84,6 +96,18 @@ class MoodleRest
      * @access private
      */
     private $print_on_request = false;
+
+    /**
+     * The method to be used on request
+     * @access private
+     */
+    private $method = 'get'; // or post
+
+    /**
+     * Print debug information to standard output?
+     * @access private
+     */
+    private $debug = false;
 
     /**
      * Constructor
@@ -254,6 +278,68 @@ class MoodleRest
     }
 
     /**
+     * Set the request method
+     *
+     * @param string $method The method to be used on request: MoodleRest::METHOD_GET or METHOD_POST
+     */
+    public function setMethod($method)
+    {
+        $this->method = $method;
+    }
+
+    /**
+     * Get the method
+     *
+     * @return string Get the request method
+     */
+    public function getMethod()
+    {
+        return $this->method;
+    }
+
+    /**
+     * Enable debugging information
+     *
+     * @param bool $enabled Enable or disable debugging information
+     */
+    public function setDebug($enabled = true)
+    {
+        $this->debug = $enabled;
+    }
+
+    /**
+     * Print debug information
+     *
+     * @param string $url The full url used to request the Moodle REST server
+     * @param string $webservice_function The name of the Moodle function
+     * @param string $method The method used to request data (get or post)
+     * @param string $returned_data The data returned by Moodle webservice
+     */
+    private function debug($url, $webservice_function, $method, $returned_data)
+    {
+        if ($this->debug) {
+            $line_break = php_sapi_name() == 'cli' ? "\n" : '<br />';
+            $open_html_pre = php_sapi_name() == 'cli' ? '' : '<pre>';
+            $close_html_pre = php_sapi_name() == 'cli' ? '' : '</pre>';
+            echo $open_html_pre;
+            echo $line_break;
+            echo '[debug][' . strtoupper($method) . '] ' . get_class($this) . "::request( $webservice_function )$line_break";
+            echo "$url $line_break";
+            if (is_array($returned_data) || is_object($returned_data)) {
+                print_r($returned_data);
+            } else {
+                if ((strlen(trim($returned_data)) > 0) && in_array($returned_data[0], array('[', '{'))) {
+                    print_r(json_decode(trim($returned_data), true));
+                } else {
+                    echo gettype($returned_data) . " '$returned_data'$line_break";
+                }
+            }
+            echo $line_break;
+            echo $close_html_pre;
+        }
+    }
+
+    /**
      * Set the option to print the requested data to standard output
      *
      * @param bool $print_on_request Set to TRUE if you want to output the result
@@ -300,7 +386,7 @@ class MoodleRest
      *
      * @return mixed The final requested data
      */
-    public function request($function, $parameters)
+    public function request($function, $parameters, $method = self::METHOD_GET)
     {
         $fatal = 0;
         if (empty($this->server_address)) {
@@ -333,6 +419,8 @@ class MoodleRest
             $return_format = 'xml';
         }
 
+        $this->setMethod($method);
+
         $query_string = http_build_query($parameters);
 
         $this->setUrl(
@@ -343,7 +431,29 @@ class MoodleRest
             '&' . $query_string
         );
 
-        $moodle_request = file_get_contents($this->getUrl(false));
+        $post_url =
+            $this->getServerAddress() .
+            '?wstoken=' . $this->getToken() .
+            '&moodlewsrestformat=' . $return_format .
+            '&wsfunction=' . $function;
+
+        if ($this->getMethod() != self::METHOD_POST) {
+            // GET
+            $moodle_request = file_get_contents($this->getUrl(false));
+            $this->debug($this->getUrl(), $function, self::METHOD_GET, $moodle_request);
+        } else {
+            // POST
+            $options = array('http' =>
+                array(
+                    'method'  => 'POST',
+                    'header'  => 'Content-type: application/x-www-form-urlencoded',
+                    'content' => $query_string
+                )
+            );
+            $context = stream_context_create($options);
+            $moodle_request = file_get_contents($post_url, false, $context);
+            $this->debug($this->getUrl(), $function, self::METHOD_POST, $moodle_request);
+        }
 
         $this->setRawData($moodle_request);
 

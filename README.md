@@ -1,6 +1,6 @@
 # MoodleRest
 
-MoodleRest is a PHP class to query Moodle REST webservices.
+MoodleRest is a PHP class to query Moodle REST webservices. You can make GET and POST requests.
 
 ## Quick start
 
@@ -39,7 +39,8 @@ $MoodleRest = new MoodleRest('http://127.0.0.1/moodle/webservice/rest/server.php
 
 $new_group = array('groups' => array(array('courseid' => 2, 'name' => 'Group name', 'description' => 'Group description')));
 
-$return = $MoodleRest->request('core_group_create_groups', $new_group);
+// The default request's METHOD is to make a GET request, but you can change it to POST. This is recommended when inserting and updating data.
+$return = $MoodleRest->request('core_group_create_groups', $new_group, MoodleRest::METHOD_POST);
 
 // If you want the requested URL
 echo $MoodleRest->getUrl();
@@ -55,9 +56,10 @@ $MoodleRest->setServerAddress("http://127.0.0.1/moodle/webservice/rest/server.ph
 $MoodleRest->setToken('8f12e614dae30735260a045313caa400');
 $MoodleRest->setReturnFormat(MoodleRest::RETURN_ARRAY); // Array is default. You can use RETURN_JSON or RETURN_XML too.
 
-$arr = $MoodleRest->request('core_group_get_groups', array('groupids' => array(1,2)));
-
-print_r($arr);
+// You can enable debugging information using setDebug()
+// When debugging is enabled, after each request the built URL and the result returned by the webservice function are printed to the standard output.
+$MoodleRest->setDebug();
+$arr = $MoodleRest->request('core_group_get_groups', array('groupids' => array(1,2)), MoodleRest::METHOD_GET);
 
 // Note: You can make more requests using the same object
 ```
