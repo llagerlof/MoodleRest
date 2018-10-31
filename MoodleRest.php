@@ -5,7 +5,7 @@
  * MoodleRest is a class to query Moodle REST webservices
  *
  * @package    MoodleRest
- * @version    2.2.0
+ * @version    2.3.0
  * @author     Lawrence Lagerlof <llagerlof@gmail.com>
  * @copyright  2018 Lawrence Lagerlof
  * @link       http://github.com/llagerlof/MoodleRest
@@ -386,15 +386,15 @@ class MoodleRest
      *
      * @return mixed The final requested data
      */
-    public function request($function, $parameters, $method = self::METHOD_GET)
+    public function request($function, $parameters = null, $method = self::METHOD_GET)
     {
         $fatal = 0;
         if (empty($this->server_address)) {
-            trigger_error('Empty server address. Use setServerAddress()', E_USER_WARNING);
+            trigger_error('Empty server address. Use setServerAddress() or put the address on constructor.', E_USER_WARNING);
             $fatal = 1;
         }
         if (empty($this->token)) {
-            trigger_error('Empty token. Use setToken()', E_USER_WARNING);
+            trigger_error('Empty token. Use setToken() or put the token on constructor. ', E_USER_WARNING);
             $fatal = 1;
         }
         if (empty($this->return_format)) {
@@ -405,9 +405,11 @@ class MoodleRest
             trigger_error('Empty function. Fill the first parameter of request()', E_USER_WARNING);
             $fatal = 1;
         }
-        if (!is_array($parameters) || empty($parameters)) {
-            trigger_error('The second parameter of request() should not be an empty array', E_USER_WARNING);
-            $fatal = 1;
+        if (!is_null($parameters)) {
+            if (!is_array($parameters)) {
+                trigger_error('The second parameter of request() should be an array', E_USER_WARNING);
+                $fatal = 1;
+            }
         }
         if ($fatal) {
             trigger_error('Fix above errors and try again', E_USER_ERROR);
@@ -421,7 +423,7 @@ class MoodleRest
 
         $this->setMethod($method);
 
-        $query_string = http_build_query($parameters);
+        $query_string = is_array($parameters) ? http_build_query($parameters) : '';
 
         $this->setUrl(
             $this->getServerAddress() .
