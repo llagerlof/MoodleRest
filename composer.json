@@ -1,0 +1,20 @@
+{
+    "name": "llagerlof/moodlerest",
+    "description": "MoodleRest is a PHP class to query Moodle REST webservices",
+    "license": "MIT",
+    "version": "2.3.0",
+    "homepage": "https://github.com/llagerlof",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/llagerlof/MoodleRest.git"
+    },
+    "authors": [
+        {
+            "name": "Lawrence Lagerlof",
+            "email": "llagerlof@gmail.com"
+        }
+    ],
+    "autoload": {
+            "classmap": ["MoodleRest.php"]
+        }
+}
