@@ -12,11 +12,39 @@ If you need a detailed explanation about the **$parameters** format of the **req
 
 ## To the code
 
-Include the **MoodleRest.php** class in your script.
+**You have 2 options to add this lib to your project:**
+
+**Option One:** Use Composer to include it in your project.
+
+- Inside your project directory create or modify the file `composer.json`:
+
+```json
+{
+    "require": {
+        "llagerlof/moodlerest": "2.3.0"
+    }
+}
+```
+
+- In the same directory of the `composer.json`, run:
+```bash
+$ composer install
+```
+
+- In your project, load the lib using composer autoloader:
+
+```php
+<?php
+require_once dirname(__FILE__) . '/vendor/autoload.php'
+```
+
+**Option Two:** Include the **MoodleRest.php** class in your script.
 
 ```php
 require_once('MoodleRest.php');
 ```
+
+
 
 ### Example 1
 
