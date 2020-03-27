@@ -440,11 +440,46 @@ class MoodleRest
             '&wsfunction=' . $function;
 
         if ($this->getMethod() != self::METHOD_POST) {
-            // GET
-            $moodle_request = file_get_contents($this->getUrl(false));
+            /* GET */
+            // Cache control
+            $cache_directory = '/tmp';
+            $found = false;
+            $found_hash = '';
+            $execution_state = array($function, $parameters, $method, $this->server_address, $this->return_format);
+            if (file_exists($cache_directory . '/moodlerest_cache.index')) {
+                // Verify if cached data is in cache
+                $cache_index = unserialize(file_get_contents($cache_directory . '/moodlerest_cache.index'));
+                foreach ($cache_index as $index_hash => $index_record) {
+                    if ($index_record == $execution_state) {
+                        $found = true;
+                        $found_hash = $index_hash;
+                        break;
+                    }
+                }
+            }
+
+            if (!$found) {
+                // Not found in cache
+                $moodle_request = file_get_contents($this->getUrl(false));
+                $hash = md5(rand());
+                $cache_index[$hash] = $execution_state;
+                file_put_contents($cache_directory . '/moodlerest_cache.index', serialize($cache_index));
+                if (file_exists($cache_directory . '/moodlerest_cache.data')) {
+                    $cache_data = unserialize(file_get_contents($cache_directory . '/moodlerest_cache.data'));
+                }
+                $cache_data[$hash] = $moodle_request;
+                file_put_contents($cache_directory . '/moodlerest_cache.data', serialize($cache_data));
+            } else {
+                // Found in cache
+                if (file_exists($cache_directory . '/moodlerest_cache.data')) {
+                    $cache_data = unserialize(file_get_contents($cache_directory . '/moodlerest_cache.data'));
+                }
+                $moodle_request = $cache_data[$found_hash];
+            }
+            // End of cache control
             $this->debug($this->getUrl(), $function, self::METHOD_GET, $moodle_request);
         } else {
-            // POST
+            /* POST */
             $options = array('http' =>
                 array(
                     'method'  => 'POST',
