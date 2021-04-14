@@ -5,9 +5,9 @@
  * MoodleRest is a class to query Moodle REST webservices
  *
  * @package    MoodleRest
- * @version    2.3.0
+ * @version    2.4.0
  * @author     Lawrence Lagerlof <llagerlof@gmail.com>
- * @copyright  2018 Lawrence Lagerlof
+ * @copyright  2021 Lawrence Lagerlof
  * @link       http://github.com/llagerlof/MoodleRest
  * @license    https://opensource.org/licenses/MIT MIT
  */
@@ -119,7 +119,7 @@ class MoodleRest
         $this->server_address = $server_address;
         $this->token = $token;
         if (!is_null($return_format) && $return_format <> 'json' && $return_format <> 'xml' && $return_format <> 'array') {
-            trigger_error("Invalid return format: '$return_format'", E_USER_WARNING);
+            throw new Exception("MoodleRest: Invalid return format: '$return_format'.");
         }
         $this->return_format = $return_format;
     }
@@ -157,6 +157,7 @@ class MoodleRest
     public function setToken($token)
     {
         $this->token = $token;
+
         return $this;
     }
 
@@ -180,9 +181,10 @@ class MoodleRest
     public function setReturnFormat($return_format) // json, xml, array
     {
         if ($return_format <> 'json' && $return_format <> 'xml' && $return_format <> 'array') {
-            trigger_error("Invalid return format: '$return_format'", E_USER_WARNING);
+            throw new Exception("MoodleRest: Invalid return format: '$return_format'.");
         }
         $this->return_format = $return_format;
+
         return $this;
     }
 
@@ -388,31 +390,22 @@ class MoodleRest
      */
     public function request($function, $parameters = null, $method = self::METHOD_GET)
     {
-        $fatal = 0;
         if (empty($this->server_address)) {
-            trigger_error('Empty server address. Use setServerAddress() or put the address on constructor.', E_USER_WARNING);
-            $fatal = 1;
+            throw new Exception('MoodleRest: Empty server address. Use setServerAddress() or put the address on constructor.');
         }
         if (empty($this->token)) {
-            trigger_error('Empty token. Use setToken() or put the token on constructor. ', E_USER_WARNING);
-            $fatal = 1;
+            throw new Exception('MoodleRest: Empty token. Use setToken() or put the token on constructor.');
         }
         if (empty($this->return_format)) {
-            trigger_error('Empty return format. Use setReturnFormat()', E_USER_WARNING);
-            $fatal = 1;
+            throw new Exception('MoodleRest: Empty return format. Use setReturnFormat().');
         }
         if (empty($function)) {
-            trigger_error('Empty function. Fill the first parameter of request()', E_USER_WARNING);
-            $fatal = 1;
+            throw new Exception('MoodleRest: Empty function. Fill the first parameter of request().');
         }
         if (!is_null($parameters)) {
             if (!is_array($parameters)) {
-                trigger_error('The second parameter of request() should be an array', E_USER_WARNING);
-                $fatal = 1;
+                throw new Exception('MoodleRest: The second parameter of request() should be an array.');
             }
-        }
-        if ($fatal) {
-            trigger_error('Fix above errors and try again', E_USER_ERROR);
         }
 
         if ($this->getReturnFormat() == 'array' || $this->getReturnFormat() == 'json') {
@@ -442,6 +435,11 @@ class MoodleRest
         if ($this->getMethod() != self::METHOD_POST) {
             // GET
             $moodle_request = file_get_contents($this->getUrl(false));
+
+            if ($moodle_request === false) {
+                throw new Exception('MoodleRest: Error trying to connect to Moodle server on GET request. Check PHP warning messages.');
+            }
+
             $this->debug($this->getUrl(), $function, self::METHOD_GET, $moodle_request);
         } else {
             // POST
@@ -454,6 +452,11 @@ class MoodleRest
             );
             $context = stream_context_create($options);
             $moodle_request = file_get_contents($post_url, false, $context);
+
+            if ($moodle_request === false) {
+                throw new Exception('MoodleRest: Error trying to connect to Moodle server on POST request. Check PHP warning messages.');
+            }
+
             $this->debug($this->getUrl(), $function, self::METHOD_POST, $moodle_request);
         }
 

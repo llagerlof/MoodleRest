@@ -2,7 +2,7 @@
     "name": "llagerlof/moodlerest",
     "description": "MoodleRest is a PHP class to query Moodle REST webservices",
     "license": "MIT",
-    "version": "2.3.0",
+    "version": "2.4.0",
     "homepage": "https://github.com/llagerlof",
     "repository": {
         "type": "git",

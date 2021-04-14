@@ -21,7 +21,7 @@ If you need a detailed explanation about the **$parameters** format of the **req
 ```json
 {
     "require": {
-        "llagerlof/moodlerest": "2.3.0"
+        "llagerlof/moodlerest": "2.4.0"
     }
 }
 ```
