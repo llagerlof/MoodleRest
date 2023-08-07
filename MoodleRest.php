@@ -416,7 +416,7 @@ class MoodleRest
 
         $this->setMethod($method);
 
-        $query_string = is_array($parameters) ? http_build_query($parameters) : '';
+        $query_string = is_array($parameters) ? http_build_query($parameters, '', '&') : '';
 
         $this->setUrl(
             $this->getServerAddress() .
